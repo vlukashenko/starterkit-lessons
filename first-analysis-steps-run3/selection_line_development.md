@@ -1,5 +1,10 @@
 # Selection lines in Moore
+{% objectives "Learning Objectives" %}
 
+* Basics of line development
+* How to produce a DST by running Moore 
+
+{% endobjectives %} 
 ## Prerequisites
 
 Before starting the development of a new line it can be useful to create and checkout a new branch in the Moore project:
@@ -177,7 +182,7 @@ To achieve this we define `make_phi_to_kk` and `make_jpsi2mumu` functions.
 The functions that build composite particles, i.e. particles that are not the final tracks in the decay, are often refered to as `builders`. 
 
 ```python
-def make_jpsi_to_mumu(pvs=make_pvs()):
+def make_jpsi_to_mumu(pvs=make_pvs):
 
         muons = make_selected_tracks(make_ismuon_long_muons(),
                                         pvs=pvs,
@@ -202,7 +207,7 @@ def make_jpsi_to_mumu(pvs=make_pvs()):
                 CompositeCut=vertex_cut
                 )
 
-def make_phi_to_kk(pvs=make_pvs(),
+def make_phi_to_kk(pvs=make_pvs,
                  pt_k_min = 500*MeV,
                  m_min = 980*MeV,
                  m_max = 1060*MeV,
@@ -230,17 +235,24 @@ Here we utilized a helper wrapper `in_range`, that represents cuts in form of `a
 * The `CombinationCut` is applied on the combinatoric combinations of the input particles. 
 The `CompositeCut` is applied on the composite particle, i.e. the $J\!/\!\psi(1S)$ and $\phi(1020)$ in our case, after the vertex fit is performed.
 * Fitting vertices can be computationally intensive and time-consuming. Therefore it is important to reduce the number of combinations producing unwanted background candidates beforehand by applying an efficient `CombinationCut`.
-* The order of the particle containers parsed as arguments to ```Inputs``` has to match the particles used in the ```DecayDescriptor```. For further rules on the ```DecayDescriptor```, have a look [here]().
+
+{% callout Rules for `DecayDescriptor` %}
+* The order of the particle containers parsed as arguments to ```Inputs``` has to match the particles used in the ```DecayDescriptor```.
+* particles should be sorted by their rareness of occurence, so that the combinatorics of the `ParticleCombinber` are minimal.
+* Equal particles in the `DecayDescriptor` need equal particles containers.
+{% endcallout %} 
+
 
 Finally we need to write a builder function for the $B_s^0$ candidates taking the $J\!/\!\psi(1S)$ and $\phi(1020)$ as inputs.
 
 ```python
 
-def make_Bs0_to_jpsiphi(pvs=make_pvs,
-                        m_min=5150*MeV,
+def make_Bs0_to_jpsiphi(m_min=5150*MeV,
                         m_max=5550*MeV,
                         min_bpvdira=-10,
                         vtx_chi2dof=20):
+
+        pvs = make_pvs()
 
         jpsi = make_jpsi_to_mumu(pvs=pvs)
         phi = make_phi_to_kk(pvs=pvs)
@@ -306,7 +318,7 @@ In case of doubt contact your RTA/DPA liason or a Trigger/migration coordinator.
 
 You can find the full definition of the `BsToJpsiPhi_Line`.
 
-There are a few key points to keep in mind when developing an HLT line:
+{% callout "Things to keep in mind while developing selection lines" %}
 
 1. The **signal efficiency** is a measure of how many true signal candidates would pass you selection. 
    Naturally, you want this to be as high as possible. 
@@ -322,14 +334,13 @@ There are a few key points to keep in mind when developing an HLT line:
    To do this you need to know the instantaneous luminosity (targeted to be $\mathcal{L}= 2 \cdot 10^{33} \text{cm}^{-2} \text{s}^{-1}$ during stable runs), 
    the production cross-section of the parent particle and branching fraction of your exclusive decay channel.
 
-   Assuming a perfect 100% signal efficiency, and using that $B_s^0$ production cross section of $14.4 µ\text{b}$ in pp collisions and the branching fraction of $B_s^0 \to J\!/\!\psi(1S) \phi(1020)$ decay is $10^{-3}$, one can estimate the signal rate
-   to be 28 Hz.
+   Assuming a perfect 100% trigger efficiency one can estimate the signal rate to be O(10Hz) using this formula:
 
-   $\sigma(pp \to bbX) \cdot 2 \cdot f_s \cdot \text{BR} (B_s^0 \to J\!/\!\psi(1S) \phi(1020)) \cdot \text{BR}(J\!/\!\psi(1S) \to \mu \mu) \cdot \text{BR}(\phi(1020) \to KK) \cdot \varepsilon \cdot \mathcal{L}$
+  $\text{signal rate} =  2 \cdot \sigma(pp \to bbX) \cdot f_s \cdot \mathcal{L}_\text{inst}  \cdot \text{BR} (B_s^0 \to J\!/\!\psi(1S) \phi(1020)) \cdot \text{BR}(J\!/\!\psi(1S) \to \mu^+ \mu^-) \cdot \text{BR}(\phi(1020) \to K^+K^-) \cdot \varepsilon_\text{geom} \cdot \varepsilon_\text{trig}$  
 
-   Apart from this you have to keep in mind that the HLT2 output rate not only contains signal but also background candidates which can result in total rates quite different from the signal rate.  
+   Apart from this you have to keep in mind that the HLT2 output rate not only contains signal but also background candidates which can result in total rates quite different from the signal rate.
 
-   One should aim at no more than 100 Hz in this case, assuming a very loose selection, which we want for the trigger line. 
+   Since the full menu of trigger selections is not yet finalised it is not possible to give an exact rate limit. The rule of thumb assuming a very loose selection is to not exceed $100\,\text{Hz}$ for a line going to the Turbo stream.
 
 3. The **size of a saved event** is another extremely important factor for the computing resources distribution. 
    By default only the raw and reconstructed candidate information will be preserved if the trigger line fired. 
@@ -345,6 +356,7 @@ There are a few key points to keep in mind when developing an HLT line:
      * All the cuts that you can apply at the child level, should be applied there.
      * Combinatorics should be reduced as much as possible prior the vertex fit is run.
 
+{% endcallout %} 
 ## Running Moore
 Now that we have developed an HLT2 line, we can run `Moore` including our line on MC samples to check the implementation and evaluate its physics and computing performance. For this we will need to define and tell `Moore` the options we want to run with. We will place these in a dedicated options file that we call `hlt2_starterkit_options.py` and place in
 
@@ -352,7 +364,7 @@ Now that we have developed an HLT2 line, we can run `Moore` including our line o
 Moore/Hlt/Hlt2Conf/options/
 ```
 
-The Moore options can look like this for a test run on some MinBias sample that we retrieved from test file database.
+The Moore options can look like this for a test run on a Minimum Bias sample that we retrieve from [test file database](https://gitlab.cern.ch/lhcb-datapkg/PRConfig/-/blob/master/python/PRConfig/TestFileDB.py).
 
 ```python
 from Hlt2Conf.lines.StarterkitExamples.hlt2_starterkit import BsToJpsiPhi_line
@@ -375,7 +387,7 @@ options.output_type = "ROOT"
 from Moore.tcks import dump_hlt2_configuration
 config = run_moore(options, all_lines, public_tools)
 
-dump_hlt2_configuration(config, f"hlt2_starterkit.tck.json")
+dump_hlt2_configuration(config, "hlt2_starterkit.tck.json")
 ```
 With these options we can run `Moore` with the following command from the stack:
 
@@ -383,6 +395,8 @@ With these options we can run `Moore` with the following command from the stack:
 ./Moore/run gaudirun.py '$MOOREROOT/tests/options/default_input_and_conds_hlt2.py' ./Moore/Hlt/Hlt2Conf/options/hlt2_starterkit_options.py
 ```
 Since we are running on only 100 MinBias MC events, this is very unlikely to produce a Bs2JpsiPhi candidate passing our selection. To evaluate the physics performance of our line we will have to switch to a dedicated Bs2JpsiPhi signal MC sample, which can be found in the bookkeeping [here]().
+
+### Running on signal MC
 
 Current signal MC samples are usually in the XDIGI format, which means that there was no reconstruction applied to them, while (L)DST usually have some outdated reconstruction run on them. We will therefore need to configure the Moore options to enable a real-time reconstruction. This can be done by
 
@@ -396,10 +410,12 @@ with reconstruction.bind(from_file=False):
 To run on XDIGI files you will answer need to change some of the `Moore` options and define the right input files and formats and add the corresponding database tags:
 
 ```python
-options.input_type = "MDF"
+options.input_type = "ROOT"
 options.input_raw_format = 0.3
 
 options.input_files = "<Bs2JpsiPhi.xdigi>"
-options.conddb_tag = 
-options.dddb_tag = 
+options.conddb_tag = "sim-20210617-vc-md100"
+options.dddb_tag = "dddb-20210617"
 ```
+
+After you have successfully run Moore on the signal MC with candidates passing your selection you will find the two new files `hlt2_starterkit.dst` and `hlt2_starterkit.tck.json` where the first one contains the persisted raw and reconstructed data of the selected events in the TES format and the second the configuration of the run, that will be needed later to retrieve information about the trigger lines that were run.
