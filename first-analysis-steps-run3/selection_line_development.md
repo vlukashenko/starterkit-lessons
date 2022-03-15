@@ -61,7 +61,7 @@ import Functors as F
 from Functors.math import in_range
 ```
 
- In the case of `$B_s^0 \to J\!/\!\psi(1S) \phi(1020)$` we can start from building `$\mu^+ \mu^-$` and `$K^+K^-$` combinations to build `$J\!/\!\psi(1S)$` and `$\phi(1020)$` composites.
+ In the case of `$B_s^0 \to J\!/\!\psi(1S) \phi(1020)$` we can start from building `$\mu^{+} \mu^{-}$` and `$K^{+}K^{-}$` combinations to build `$J/\psi(1S)$` and `$\phi(1020)$` composites.
 
 To allow for flexibility and maintainabilty of the Moore framework it is highly recommended to share code for commonly used selections. While [```standard_particles.py```](https://gitlab.cern.ch/lhcb/Moore/-/blob/master/Hlt/Hlt2Conf/python/Hlt2Conf/standard_particles.py) provides builders for many commmon final-state and intermediate particles, there are additional builders for working specific purposes provided. It is very important build up on these commonly used code bases. 
 
@@ -115,7 +115,7 @@ def make_selected_kaons(pt_min=250. * MeV,
     return ParticleFilter(muons, F.FILTER(cut))
 ```
 
-Some of the variables you may want to cut on require PV information such as the $\text{IP}$ or $\chi^2_\text{IP}$. Before we can apply such a cut, we need to import and call an algorithm that is creating PVs.
+Some of the variables you may want to cut on require PV information such as the `$\text{IP}$` or `$\chi^2_\text{IP}$`. Before we can apply such a cut, we need to import and call an algorithm that is creating PVs.
 
 ```python
 from RecoConf.reconstruction_objects import make_pvs_v2 as make_pvs
