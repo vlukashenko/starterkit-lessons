@@ -115,7 +115,7 @@ def make_selected_kaons(pt_min=250. * MeV,
     return ParticleFilter(muons, F.FILTER(cut))
 ```
 
-Some of the variables you may want to cut on require PV information such as the $\text{IP}$ or $\chi^2_\text{IP}$. Before we can apply such a cut, we need to import and call an algorithm that is creating PVs.
+Some of the variables you may want to cut on require PV information such as the `$\text{IP}$` or `$\chi^2_\text{IP}$`. Before we can apply such a cut, we need to import and call an algorithm that is creating PVs.
 
 ```python
 from RecoConf.reconstruction_objects import make_pvs_v2 as make_pvs
@@ -177,7 +177,7 @@ kaons = filter_tracks()
 muons = filter_tracks(make_long_muons, pid = (F.PID_MU > 0.)) 
 ``` 
 
-The next step would be to build and select intermediate composite particles, that the $B_s^0$ decay into: $J\!/\!\psi(1S)$ and $\phi(1020)$.
+The next step would be to build and select intermediate composite particles, that the `$B_{s}^{0}$` decay into: `$J\!/\!\psi(1S)$` and `$\phi(1020)$`.
 To achieve this we define `make_phi_to_kk` and `make_jpsi2mumu` functions.
 The functions that build composite particles, i.e. particles that are not the final tracks in the decay, are often refered to as `builders`. 
 
@@ -229,11 +229,11 @@ def make_phi_to_kk(pvs=make_pvs,
   
 ```
 
-Here we utilized a helper wrapper `in_range`, that represents cuts in form of `a_min < var < a_max` and the `ParticleCombiner` algorithm to create the $J\!/\!\psi(1S)$ and $\phi(1020)$ candidates. 
+Here we utilized a helper wrapper `in_range`, that represents cuts in form of `a_min < var < a_max` and the `ParticleCombiner` algorithm to create the `$J\!/\!\psi(1S)$` and `$\phi(1020)$` candidates. 
 `ParticleCombiner` takes as an inputs both `CombinationCut` and `CompositeCut`.
 
 * The `CombinationCut` is applied on the combinatoric combinations of the input particles. 
-The `CompositeCut` is applied on the composite particle, i.e. the $J\!/\!\psi(1S)$ and $\phi(1020)$ in our case, after the vertex fit is performed.
+The `CompositeCut` is applied on the composite particle, i.e. the `$J\!/\!\psi(1S)$` and `$\phi(1020)$` in our case, after the vertex fit is performed.
 * Fitting vertices can be computationally intensive and time-consuming. Therefore it is important to reduce the number of combinations producing unwanted background candidates beforehand by applying an efficient `CombinationCut`.
 
 {% callout Rules for `DecayDescriptor` %}
@@ -243,7 +243,7 @@ The `CompositeCut` is applied on the composite particle, i.e. the $J\!/\!\psi(1S
 {% endcallout %} 
 
 
-Finally we need to write a builder function for the $B_s^0$ candidates taking the $J\!/\!\psi(1S)$ and $\phi(1020)$ as inputs.
+Finally we need to write a builder function for the `$B_{s}^{0}$` candidates taking the `$J\!/\!\psi(1S)$` and `$\phi(1020)$` as inputs.
 
 ```python
 
